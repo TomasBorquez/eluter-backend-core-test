@@ -1,0 +1,4 @@
+CREATE TABLE balances (
+  id SERIAL PRIMARY KEY,
+  balance DECIMAL(18,2) NOT NULL DEFAULT 0.00
+);
