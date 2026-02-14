@@ -1,18 +1,8 @@
 import { getBalance } from './repository';
 import { seedTransaction } from './seed';
-import {
-  initTransactionHooks,
-  naiveTransaction,
-yourImplementation
-} from './implementations';
+import { initTransactionHooks, yourImplementation } from './implementations';
 
-const implementations = [
-  naiveTransaction,
-  yourImplementation
-];
-// const implementations = [naiveTransaction];
-// const implementations = [naiveWithDBTransaction];
-// const implementations = [reOrdered];
+const implementations = [yourImplementation];
 
 describe.each(implementations)('Transaction', (implementation) => {
   describe(`Implementation: ${implementation.name}`, () => {

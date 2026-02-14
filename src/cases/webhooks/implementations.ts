@@ -20,8 +20,19 @@ export type WebhookInterface = {
   secret: string;
 };
 
-export function noChecks(args: WebhookInterface) {
-  args.eventStore.push(args.payload);
-}
+export function yourImplementation({ eventStore, payload, secret, rawPayload, signature }: WebhookInterface) {
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(rawPayload)
+    .digest('hex');
 
-export function yourImplementation(args: WebhookInterface) {}
+  if (expectedSignature !== signature) {
+    return;
+  }
+
+  if (eventStore.some(e => e.eventId === payload.eventId)) {
+    return;
+  }
+
+  eventStore.push(payload);
+}

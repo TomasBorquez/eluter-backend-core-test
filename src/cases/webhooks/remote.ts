@@ -22,6 +22,7 @@ export function generatePayload({
     .createHmac('sha256', secret)
     .update(rawPayload)
     .digest('hex');
+
   return {
     signature,
     payload,

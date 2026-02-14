@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { noChecks, WebhookEvent, yourImplementation } from './implementations';
+import { WebhookEvent, yourImplementation } from './implementations';
 import { generatePayload } from './remote';
 
-const implementations = [noChecks, yourImplementation];
+const implementations = [yourImplementation];
 
 describe.each(implementations)('Transaction', (implementation) => {
   describe(`Implementation: ${implementation.name}`, () => {

@@ -9,3 +9,9 @@ It simulates a user account with balance and a withdraw request that must debit 
 
 ### Webhook
 It simulates webhook processing logic
+
+## Tests Results
+Both `webhooks/webhook.spec.ts` and `transaction/transaction.spec.ts` passing:
+![Tests Results](./resources/test-results.png)
+
+Also removed `naiveTransaction` and `noChecks` functions to remove noise.

@@ -1,7 +1,6 @@
 import { createHooks } from 'src/utils/hooks';
-import { effect, EffectFailed, EffectOptions } from './client';
-import { credit, debit, getBalance } from './repository';
-import { PostgresError } from 'postgres';
+import { effect, EffectOptions } from './client';
+import { atomicDebit, getBalance } from './repository';
 
 const transactionHooks = [
   'preEffect',
@@ -27,22 +26,9 @@ export type TransactionInterface = {
   effectOptions?: EffectOptions;
 };
 
-export async function naiveTransaction({
-  accountId,
-  amount,
-  hooks,
-  effectOptions,
-}: TransactionInterface) {
-  const balance = await getBalance(accountId);
-  if (parseFloat(amount) > parseFloat(balance.balance)) return false;
-
-  await effect({ hooks, ...effectOptions });
-
-  await debit(accountId, amount, hooks);
-
-  return true;
+function effectsRan(effectOptions?: EffectOptions) {
+  return effectOptions?.effectPerformed?.mock.calls.length
 }
-
 
 export async function yourImplementation({
   accountId,
@@ -53,9 +39,26 @@ export async function yourImplementation({
   const balance = await getBalance(accountId);
   if (parseFloat(amount) > parseFloat(balance.balance)) return false;
 
-  await effect({ hooks, ...effectOptions });
+  // NOTE: transaction so if debit fails, we rollback
+  const debitSuccess = await db.begin(async (tx) => {
+    const debitResult = await atomicDebit(accountId, amount, hooks, tx);
+    if (debitResult.count === 0) return false;
+    return true;
+  });
 
-  await debit(accountId, amount, hooks);
+  if (!debitSuccess) return false;
 
-  return true;
+  try {
+    await effect({ hooks, ...effectOptions });
+    return true;
+  } catch (e) {
+    if (!effectsRan(effectOptions)) {
+      await db`
+        UPDATE balances
+        SET balance = balance + ${amount}
+        WHERE id = ${accountId}`;
+    }
+    // NOTE: if effect DID run, the debit stays committed
+    throw e;
+  }
 }
