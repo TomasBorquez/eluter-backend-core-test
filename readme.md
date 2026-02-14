@@ -12,6 +12,7 @@ It simulates webhook processing logic
 
 ## Tests Results
 Both `webhooks/webhook.spec.ts` and `transaction/transaction.spec.ts` passing:
+
 ![Tests Results](./assets/test-results.png)
 
 Also removed `naiveTransaction` and `noChecks` functions to remove noise.
